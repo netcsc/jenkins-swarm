@@ -1,0 +1,7 @@
+#ansible-playbook jenkins.yml
+---
+- hosts: swarm
+  become: true
+  gather_facts: True
+  roles:
+  - role: jenkins
