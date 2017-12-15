@@ -1,0 +1,14 @@
+- name: Check Docker compose bin file presence
+  stat: path=/usr/bin/docker-compose
+  register: dockercompose
+  tags:
+  - docker-compose
+
+- name: Install docker compose
+  shell: curl -L https://github.com/docker/compose/releases/download/1.10.1/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose
+  when: dockercompose.stat.exists == false
+  tags:
+  - docker-compose
+
+- name: Apply executable permission
+  file: path=/usr/bin/docker-compose mode="u+x,g+x"

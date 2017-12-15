@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# tag master
+docker node update --label-add env=jenkins-master {{ JENKINS_MASTER }}
+
+# create credential
+docker secret rm jenkins_user
+docker secret rm jenkins_pass
+echo "admin" | docker secret create jenkins_user -
+echo "admin" | docker secret create jenkins_pass -
+
+sudo chown -R 1000:1000 {{ docker_runtime_root_dir }}/jenkins
+
+docker login -u {{ docker_user }} -p {{ docker_password }} {{ docker_repo_host }} && docker stack deploy -c {{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.yml jenkins --with-registry-auth

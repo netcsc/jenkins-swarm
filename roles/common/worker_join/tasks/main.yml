@@ -1,0 +1,6 @@
+  - name: join worker nodes to cluster
+    shell: >
+      docker swarm join
+      --advertise-addr={{ ansible_eth1.ipv4.address }}:2377
+      --token={{ token }}
+      {{ groups['swarm_manager_ips'][0] }}:2377

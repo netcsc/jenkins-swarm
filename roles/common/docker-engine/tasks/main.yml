@@ -1,0 +1,65 @@
+# Moduel to install docker engine
+---
+- name: add docker repository.
+  yum_repository:
+    name: dockerrepo
+    description: Docker Repository
+    enabled: yes
+    file: dockers
+    baseurl: "{{ docker_repo_baseurl}}"
+    gpgcheck: yes
+    gpgkey: "{{docker_repo_pgp_keys}}"
+
+- name: add docker yum repo
+  command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: install docker engine.
+  yum: 
+    name: "{{ item }}" 
+    state: installed 
+    update_cache: yes
+  with_items:
+  - docker-ce-{{ docker_version }}
+  async: 300
+  poll: 3
+
+- name: create docker engine config dir
+  file: 
+    path: "{{ docker_conf_dir }}"
+    state: directory 
+    mode: 0755
+
+- name: add docker engine config file
+  template: 
+    src: docker.conf.j2
+    dest: "{{ docker_conf_dir }}/docker.conf"
+    mode: 0755
+  notify:
+  - restart docker
+
+# - name: add docker engine config file
+#   template: src=http-proxy.conf.j2 dest={{ docker_conf_dir }}/{{ docker_http_conf_file_name }}
+#   notify:
+#   - restart docker
+
+- meta: flush_handlers
+
+- name: start docker
+  service: 
+    name: docker 
+    state: started 
+    enabled: yes
+
+- name: load docker info as facts
+  docker_info_facts:
+
+- debug:
+    msg: "current docker dervice drive is {{ docker_info.Driver }}"
+
+- name: make sure docker is using overlay driver
+  assert:
+    that:
+      - " docker_info.Driver == 'overlay' "
+
+- name: add user mod
+  command: usermod -aG docker {{docker_action_user}}

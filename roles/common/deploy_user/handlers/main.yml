@@ -1,0 +1,11 @@
+- name: validate sshd
+  shell: /usr/sbin/sshd -t
+  register: validate_sshd
+  notify:
+    reload sshd
+
+- name: reload sshd
+  systemd:
+    name: sshd
+    state: reloaded
+  when: validate_sshd.rc == 0

@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+  master:
+    image: {{ docker_repo_host }}/jenkins:lts
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints:
+          - node.labels.env == jenkins-master
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      JENKINS_OPTS: "--prefix=/jenkins"
+    volumes:
+      - {{ docker_runtime_root_dir }}/jenkins:/var/jenkins_home
+  slaves:
+    image: {{ docker_repo_host }}/jenkins-swarm-agent:latest
+    environment:
+      - USER_NAME_SECRET=/run/secrets/${JENKINS_USER_SECRET:-jenkins_user}
+      - PASSWORD_SECRET=/run/secrets/${JENKINS_PASS_SECRET:-jenkins_pass}
+      - COMMAND_OPTIONS=-master http://{{ JENKINS_MASTER_IP }}:8080/jenkins -labels 'docker' -executors 5
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ docker_runtime_root_dir }}/jenkins:/workspace
+    secrets:
+      - jenkins_user
+      - jenkins_pass
+    deploy:
+      mode: global
+
+secrets:
+  jenkins_user:
+    external: true
+  jenkins_pass:
+    external: true

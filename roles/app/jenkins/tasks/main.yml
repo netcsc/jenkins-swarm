@@ -1,0 +1,31 @@
+# create a directory if it doesn't exist
+- file:
+    path: "{{ docker_runtime_root_dir }}/{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - jenkins
+    - scripts
+
+- name: copy over jenkins_swarm_cluster.yml
+  when: inventory_hostname in groups["jenkins"]
+  template:
+    src: jenkins_swarm_cluster.yml.j2
+    dest: "{{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.yml"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: copy over jenkins_swarm_cluster.sh
+  when: inventory_hostname in groups["jenkins"]
+  template:
+    src: jenkins_swarm_cluster.sh.j2
+    dest: "{{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.sh"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: execute the jenkins_swarm_cluster.sh script
+  when: inventory_hostname in groups["jenkins"]
+  command: "sh {{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.sh"
+  ignore_errors: yes

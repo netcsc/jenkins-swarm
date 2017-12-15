@@ -1,0 +1,11 @@
+docker_repo_baseurl: https://yum.dockerproject.org/repo/main/centos/7
+docker_repo_pgp_keys: https://yum.dockerproject.org/gpg
+
+docker_conf_dir: /etc/systemd/system/docker.service.d
+docker_http_conf_file_name: http-proxy.conf
+docker_version: 17.09.0.ce-1.el7.centos
+docker_device_driver: overlay
+docker_metric_port: 8088
+
+docker_http_proxy: 
+docker_no_proxy: localhost,127.0.0.1

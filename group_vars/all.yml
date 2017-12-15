@@ -1,0 +1,7 @@
+# Ansible Login
+ansible_ssh_user: vagrant
+ansible_ssh_pass: vagrant
+
+docker_action_user: vagrant
+
+swarm_iface: eth1

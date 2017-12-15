@@ -1,0 +1,7 @@
+# Moduel to install docker py which is required to manage docker on host
+---
+- yum: 
+    name: "{{item}}" 
+    state: present
+  with_items:
+    - python-docker-py

@@ -1,0 +1,65 @@
+# this role adds a new app-deploy user and enables key base authentication for this user
+
+- name: Add deploy groups
+  group:
+    name: "deploy"
+    state: present
+  tags: users
+
+- name: Add deploy user {{ item }}-deploy
+  user:
+    name: "{{ item }}-deploy"
+    group: "deploy"
+  with_items:
+    - app
+    - jenkins
+  when: (item == 'app' and env == 'dev') or (item == 'jenkins')
+  tags: users
+
+- name: set {{ item }}-deploy user to not expire
+  command: chage -I -1 -m 0 -M 99999 -E -1 {{ item }}-deploy
+  with_items:
+    - app
+    - jenkins
+  when: (item == 'app' and env == 'dev') or (item == 'jenkins')
+  tags: users
+
+- name: Copy sudoers file
+  template:
+    src: deploy.sudoers.j2
+    dest: /etc/sudoers.d/{{ item }}-deploy
+    owner: root
+    group: root
+    mode: '0600'
+    backup: yes
+  with_items:
+    - app
+    - jenkins
+  when: (item == 'app' and env == 'dev') or (item == 'jenkins')
+  notify:
+    - validate sshd
+  tags: users
+
+- name: Create .ssh directory
+  file:
+    path: "/home/{{ item }}-deploy/.ssh"
+    state: directory
+    mode: 0700
+    owner: "{{ item }}-deploy"
+    group: deploy
+  with_items:
+    - app
+    - jenkins
+  when: (item == 'app' and env == 'dev') or (item == 'jenkins')
+  tags: users
+
+- name: Set authorized key
+  authorized_key:
+    user: "{{ item }}-deploy"
+    state: present
+    key: "{{ lookup('file', 'secrets/{{ item }}-{{ env }}.pub') }}"
+  with_items:
+    - app
+    - jenkins
+  when: (item == 'app' and env == 'dev') or (item == 'jenkins')
+  tags: users

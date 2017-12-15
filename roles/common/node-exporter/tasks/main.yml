@@ -1,0 +1,26 @@
+---
+# Moduel to install node exporter agent that export host metrics to monitoring server
+- stat: path=/opt/node_exporter-0.14.0.linux-amd64
+  register: node_exporter_exists
+
+- name: download node exporter
+  command:  wget https://github.com/prometheus/node_exporter/releases/download/v0.14.0/node_exporter-0.14.0.linux-amd64.tar.gz -O /opt/node_exporter-0.14.0.linux-amd64.tar.gz
+  when: node_exporter_exists.stat.exists == False
+
+- name: unarchive node exporter
+  unarchive:
+    src: /opt/node_exporter-0.14.0.linux-amd64.tar.gz
+    dest: /opt
+    remote_src: yes
+  when: node_exporter_exists.stat.exists == False
+
+- name: install node exporter script
+  template: src=node_exporter.service.j2 dest=/etc/systemd/system/node_exporter.service owner=root group=root mode=0755
+  notify:
+  - restart node exporter
+
+- name: enable node exporter supervisord service
+  service: name=node_exporter.service enabled=yes
+
+- name: start node exporter
+  service: name=node_exporter.service state=started

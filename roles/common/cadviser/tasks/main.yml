@@ -1,0 +1,16 @@
+---
+# Module to start cadvisor
+- name: start cadvisor container
+  docker_container:
+    image: google/cadvisor
+    name: cadvisor
+    state: started
+    pull: yes
+    restart_policy: on-failure
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8088:8080

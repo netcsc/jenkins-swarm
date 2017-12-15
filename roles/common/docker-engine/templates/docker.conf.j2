@@ -1,0 +1,6 @@
+[Unit]
+After=network-online.target firewalld.service
+
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -g /app/data1 --storage-driver={{ docker_device_driver }}
