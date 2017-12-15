@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   master:
-    image: {{ docker_repo_host }}/jenkins:lts
+    image: {{ docker_repo_host }}/jenkins:latest
     deploy:
       restart_policy:
         condition: on-failure
@@ -18,13 +18,14 @@ services:
     environment:
       JENKINS_OPTS: "--prefix=/jenkins"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - {{ docker_runtime_root_dir }}/jenkins:/var/jenkins_home
   slaves:
-    image: {{ docker_repo_host }}/jenkins-swarm-agent:latest
+    image: {{ docker_repo_host }}/jenkins-agent:latest
     environment:
       - USER_NAME_SECRET=/run/secrets/${JENKINS_USER_SECRET:-jenkins_user}
       - PASSWORD_SECRET=/run/secrets/${JENKINS_PASS_SECRET:-jenkins_pass}
-      - COMMAND_OPTIONS=-master http://{{ JENKINS_MASTER_IP }}:8080/jenkins -labels 'docker' -executors 5
+      - COMMAND_OPTIONS=-master http://{{ JENKINS_MASTER_IP }}:8080/jenkins -labels docker -labels linux -executors 5
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - {{ docker_runtime_root_dir }}/jenkins:/workspace

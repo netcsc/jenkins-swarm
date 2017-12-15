@@ -25,7 +25,34 @@
     group: root
     mode: 0755
 
-- name: execute the jenkins_swarm_cluster.sh script
+- name: tag jenkins master node
+  shell: >
+    docker node update --label-add env=jenkins-master {{ inventory_hostname_short }}
   when: inventory_hostname in groups["jenkins"]
-  command: "sh {{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.sh"
+
+- name: create jenkins user and password
+  shell: >
+    echo "admin" | docker secret create {{ item }} -
+  with_items:
+    - jenkins_user
+    - jenkins_pass
   ignore_errors: yes
+
+- name: change jenkins home permission
+  file:
+    path: "{{ docker_runtime_root_dir }}/jenkins"
+    state: directory
+    owner: 1000
+    group: 1000
+    recurse: yes
+  when: inventory_hostname in groups["jenkins"]
+
+- name: start docker stack
+  shell: >
+    docker login -u {{ docker_user }} -p {{ docker_password }} {{ docker_repo_host }} && docker stack deploy -c {{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.yml jenkins --with-registry-auth
+  when: inventory_hostname in groups["jenkins"]
+
+#- name: execute the jenkins_swarm_cluster.sh script
+#  when: inventory_hostname in groups["jenkins"]
+#  command: "sh {{ docker_runtime_root_dir }}/scripts/jenkins_swarm_cluster.sh"
+#  ignore_errors: yes

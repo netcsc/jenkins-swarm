@@ -5,3 +5,14 @@ ansible_ssh_pass: vagrant
 docker_action_user: vagrant
 
 swarm_iface: eth1
+
+# Docker runtime root dir
+docker_runtime_root_dir: "/app/data"
+
+# Jenkins
+JENKINS_MASTER_IP: "{{ groups.jenkins[0] }}"
+
+# docker private repo
+docker_repo_host: 
+docker_user: 
+docker_password: 
