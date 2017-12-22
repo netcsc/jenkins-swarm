@@ -1,13 +1,23 @@
-[managers]
+[app1_uat]
 192.168.3.21 ansible_ssh_host=192.168.3.21
 
-[workers]
+[app2_uat]
 192.168.3.22 ansible_ssh_host=192.168.3.22
+
+[app3_uat]
 192.168.3.23 ansible_ssh_host=192.168.3.23
 
+[managers_local:children]
+app1_uat
+
+[workers_local:children]
+app2_uat
+app3_uat
+
 [swarm:children]
-managers
-workers
+managers_local
+workers_local
 
 [jenkins]
-192.168.3.21 ansible_ssh_host=192.168.3.21
+app1_uat
+

@@ -6,10 +6,20 @@
     state: present
   tags: users
 
+- name: Allow 'deploy' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%deploy'
+    line: '%deploy ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  tags: users
+
 - name: Add deploy user {{ item }}-deploy
   user:
     name: "{{ item }}-deploy"
     group: "deploy"
+    append: yes
   with_items:
     - app
     - jenkins

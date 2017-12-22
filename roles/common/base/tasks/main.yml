@@ -13,3 +13,6 @@
 - name: set timezone to America/Toronto
   timezone:
     name: America/Toronto
+
+#- name: update redhat subscriptions
+#  command: subscription-manager attach --auto

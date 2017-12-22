@@ -1,5 +1,5 @@
 ---
-- hosts: swarm
+- hosts: "swarm_{{env_name}}"
   become: true
   gather_facts: True
   roles:
@@ -11,7 +11,7 @@
 # into two groups:
 #   - swarm_manager_operational (swarm is running and active)
 #   - swarm_manager_bootstrap (host needs to be joined to the cluster)
-- hosts: managers
+- hosts: "managers_{{env_name}}"
   become: true
   gather_facts: True
   roles:
@@ -21,7 +21,7 @@
 # into two groups:
 #   - swarm_worker_operational (host is joined to the swarm cluster)
 #   - swarm_worker_bootstrap (host needs to be joined to the cluster)
-- hosts: workers
+- hosts: "workers_{{env_name}}"
   become: true
   gather_facts: True
   roles:
@@ -57,4 +57,14 @@
   gather_facts: True
   roles:
     - role: worker_join
+
+# tag each nodes within swarm cluster
+- hosts: "managers_{{env_name}}[0]"
+  become: true
+  gather_facts: True
+  roles:
+    - { role: swarm_label, app_label: "app1" }
+    - { role: swarm_label, app_label: "app2" }
+    - { role: swarm_label, app_label: "app3" }
+    - { role: swarm_label, app_label: "app4" }
 
