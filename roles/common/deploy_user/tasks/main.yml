@@ -2,8 +2,11 @@
 
 - name: Add deploy groups
   group:
-    name: "deploy"
+    name: "{{ item }}"
     state: present
+  with_items:
+    - deploy
+    - docker
   tags: users
 
 - name: Allow 'deploy' group to have passwordless sudo
@@ -18,8 +21,7 @@
 - name: Add deploy user {{ item }}-deploy
   user:
     name: "{{ item }}-deploy"
-    group: "deploy"
-    append: yes
+    groups: "deploy,docker"
   with_items:
     - app
     - jenkins

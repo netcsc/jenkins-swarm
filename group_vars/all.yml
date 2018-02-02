@@ -16,3 +16,8 @@ JENKINS_MASTER_IP: "{{ groups.jenkins[0] }}"
 docker_repo_host: 
 docker_user: 
 docker_password: 
+
+app1_enabled: true
+app2_enabled: true
+app3_enabled: true
+app4_enabled: true

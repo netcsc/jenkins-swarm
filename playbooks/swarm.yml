@@ -63,8 +63,8 @@
   become: true
   gather_facts: True
   roles:
-    - { role: swarm_label, app_label: "app1" }
-    - { role: swarm_label, app_label: "app2" }
-    - { role: swarm_label, app_label: "app3" }
-    - { role: swarm_label, app_label: "app4" }
+    - { role: swarm_label, app_label: "app1", enabled: "{{ app1_enabled }}"}
+    - { role: swarm_label, app_label: "app2", enabled: "{{ app2_enabled }}" }
+    - { role: swarm_label, app_label: "app3", enabled: "{{ app3_enabled }}" }
+    - { role: swarm_label, app_label: "app4", enabled: "{{ app4_enabled }}" }
 
